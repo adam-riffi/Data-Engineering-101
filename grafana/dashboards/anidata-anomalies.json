@@ -19,7 +19,7 @@
       "gridPos": { "h": 3, "w": 24, "x": 0, "y": 0 },
       "id": 1,
       "options": {
-        "content": "# AniData Lab — Détection d'anomalies\nRésultats du DAG `04_anomaly_detector` · Spam users · Mono-raters · Review bombing",
+        "content": "# AniData Lab — Détection d'anomalies\n##### Résultats du DAG `04_anomaly_detector` &nbsp;·&nbsp; Drop ratio &nbsp;·&nbsp; Outliers &nbsp;·&nbsp; Engagement",
         "mode": "markdown"
       },
       "title": "",
@@ -30,20 +30,18 @@
       "datasource": { "type": "elasticsearch", "uid": "elasticsearch-anime" },
       "fieldConfig": {
         "defaults": {
-          "color": { "fixedColor": "#E24D42", "mode": "fixed" },
+          "color": { "fixedColor": "#3b82f6", "mode": "fixed" },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 0.05 },
-              { "color": "red", "value": 0.10 }
+              { "color": "#3b82f6", "value": null }
             ]
           },
           "unit": "percentunit",
           "decimals": 2
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 3 },
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 3 },
       "id": 2,
       "options": {
         "colorMode": "background",
@@ -53,7 +51,8 @@
         "reduceOptions": { "calcs": ["mean"] },
         "textMode": "auto"
       },
-      "title": "Drop ratio moyen global",
+      "title": "Drop ratio moyen",
+      "description": "Taux d'abandon moyen global — Dropped / (Completed + Dropped)",
       "type": "stat",
       "targets": [
         {
@@ -69,20 +68,18 @@
       "datasource": { "type": "elasticsearch", "uid": "elasticsearch-anime" },
       "fieldConfig": {
         "defaults": {
-          "color": { "fixedColor": "#EF843C", "mode": "fixed" },
+          "color": { "fixedColor": "#f59e0b", "mode": "fixed" },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 10 },
-              { "color": "red", "value": 50 }
+              { "color": "#f59e0b", "value": null }
             ]
           },
           "unit": "short",
           "decimals": 0
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 3 },
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 3 },
       "id": 3,
       "options": {
         "colorMode": "background",
@@ -92,8 +89,8 @@
         "reduceOptions": { "calcs": ["sum"] },
         "textMode": "auto"
       },
-      "title": "Animes score > 7 avec drop ratio > 30%",
-      "description": "Vrais cas suspects — bien notés mais fortement abandonnés",
+      "title": "Animes suspects",
+      "description": "Score > 7 et drop ratio > 30% — bien notés mais fortement abandonnés",
       "type": "stat",
       "targets": [
         {
@@ -109,20 +106,18 @@
       "datasource": { "type": "elasticsearch", "uid": "elasticsearch-anime" },
       "fieldConfig": {
         "defaults": {
-          "color": { "fixedColor": "#7c3aed", "mode": "fixed" },
+          "color": { "fixedColor": "#ef4444", "mode": "fixed" },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 50 },
-              { "color": "red", "value": 200 }
+              { "color": "#ef4444", "value": null }
             ]
           },
           "unit": "short",
           "decimals": 0
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 3 },
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 3 },
       "id": 4,
       "options": {
         "colorMode": "background",
@@ -133,7 +128,7 @@
         "textMode": "auto"
       },
       "title": "Outliers détectés",
-      "description": "Animes flaggés is_outlier=true (Score < 4 ou drop_ratio > 0.6 avec > 500 membres)",
+      "description": "Score < 4 ou drop_ratio > 0.6 avec plus de 500 membres",
       "type": "stat",
       "targets": [
         {
@@ -149,20 +144,18 @@
       "datasource": { "type": "elasticsearch", "uid": "elasticsearch-anime" },
       "fieldConfig": {
         "defaults": {
-          "color": { "fixedColor": "#10b981", "mode": "fixed" },
+          "color": { "fixedColor": "#64748b", "mode": "fixed" },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 0.02 },
-              { "color": "red", "value": 0.05 }
+              { "color": "#64748b", "value": null }
             ]
           },
           "unit": "percentunit",
           "decimals": 3
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 3 },
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 3 },
       "id": 5,
       "options": {
         "colorMode": "background",
@@ -190,13 +183,18 @@
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
-          "custom": { "align": "left", "cellOptions": { "type": "auto" }, "inspect": false },
+          "custom": {
+            "align": "left",
+            "cellOptions": { "type": "auto" },
+            "inspect": false,
+            "lineHeight": 1
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 0.3 },
-              { "color": "red", "value": 0.5 }
+              { "color": "#1e293b", "value": null },
+              { "color": "#92400e", "value": 0.3 },
+              { "color": "#7f1d1d", "value": 0.5 }
             ]
           }
         },
@@ -207,8 +205,9 @@
               { "id": "displayName", "value": "Drop ratio" },
               { "id": "unit", "value": "percentunit" },
               { "id": "decimals", "value": 2 },
-              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
-              { "id": "custom.width", "value": 140 }
+              { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "gradient" } },
+              { "id": "custom.width", "value": 150 },
+              { "id": "thresholds", "value": { "mode": "absolute", "steps": [ { "color": "#166534", "value": null }, { "color": "#92400e", "value": 0.3 }, { "color": "#7f1d1d", "value": 0.5 } ] } }
             ]
           },
           {
@@ -216,7 +215,8 @@
             "properties": [
               { "id": "displayName", "value": "Score" },
               { "id": "decimals", "value": 2 },
-              { "id": "custom.width", "value": 90 }
+              { "id": "custom.width", "value": 90 },
+              { "id": "custom.cellOptions", "value": { "type": "auto" } }
             ]
           },
           {
@@ -224,7 +224,8 @@
             "properties": [
               { "id": "displayName", "value": "Membres" },
               { "id": "unit", "value": "short" },
-              { "id": "custom.width", "value": 110 }
+              { "id": "custom.width", "value": 110 },
+              { "id": "custom.cellOptions", "value": { "type": "auto" } }
             ]
           },
           {
@@ -233,24 +234,28 @@
               { "id": "displayName", "value": "Engagement" },
               { "id": "unit", "value": "percentunit" },
               { "id": "decimals", "value": 3 },
-              { "id": "custom.width", "value": 110 }
+              { "id": "custom.width", "value": 110 },
+              { "id": "custom.cellOptions", "value": { "type": "auto" } }
             ]
           },
           {
             "matcher": { "id": "byName", "options": "Name.keyword" },
-            "properties": [{ "id": "displayName", "value": "Anime" }]
+            "properties": [
+              { "id": "displayName", "value": "Anime" },
+              { "id": "custom.cellOptions", "value": { "type": "auto" } }
+            ]
           }
         ]
       },
-      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 7 },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 8 },
       "id": 6,
       "options": {
         "footer": { "show": false },
         "showHeader": true,
         "sortBy": [{ "desc": true, "displayName": "Drop ratio" }]
       },
-      "title": "Top 15 animes suspects (drop ratio élevé, audience > 1000)",
-      "description": "Animes avec drop_ratio > 20% et plus de 1000 membres — score élevé + fort abandon = vraie anomalie",
+      "title": "Animes suspects — drop ratio élevé avec audience significative",
+      "description": "drop_ratio > 20% et Members > 1000 — un score élevé combiné à un fort taux d'abandon signale une vraie anomalie",
       "type": "table",
       "targets": [
         {
@@ -271,13 +276,20 @@
       "datasource": { "type": "elasticsearch", "uid": "elasticsearch-anime" },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": { "fixedColor": "#3b82f6", "mode": "fixed" },
           "unit": "percentunit",
           "decimals": 2,
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#166534", "value": null },
+              { "color": "#92400e", "value": 0.15 },
+              { "color": "#7f1d1d", "value": 0.25 }
+            ]
+          }
         }
       },
-      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 7 },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 20 },
       "id": 7,
       "options": {
         "displayMode": "gradient",
@@ -289,7 +301,7 @@
         "valueMode": "color"
       },
       "title": "Drop ratio moyen par type",
-      "description": "Taux d'abandon moyen agrégé par type — identifie les formats les plus à risque",
+      "description": "Taux d'abandon moyen par format — identifie les types les plus à risque",
       "type": "bargauge",
       "targets": [
         {
@@ -305,13 +317,20 @@
       "datasource": { "type": "elasticsearch", "uid": "elasticsearch-anime" },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
+          "color": { "fixedColor": "#3b82f6", "mode": "fixed" },
           "unit": "short",
           "decimals": 2,
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#1e3a5f", "value": null },
+              { "color": "#1d4ed8", "value": 6 },
+              { "color": "#1e40af", "value": 7 }
+            ]
+          }
         }
       },
-      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 17 },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 20 },
       "id": 8,
       "options": {
         "displayMode": "gradient",
@@ -322,8 +341,8 @@
         "showUnfilled": true,
         "valueMode": "color"
       },
-      "title": "Score moyen par studio tier",
-      "description": "Weighted score bayésien moyen par tier — corrélation entre taille du studio et qualité perçue",
+      "title": "Score bayésien moyen par studio tier",
+      "description": "Weighted score moyen par tier — top studios produisent-ils de meilleurs animes ?",
       "type": "bargauge",
       "targets": [
         {
@@ -339,47 +358,18 @@
       "datasource": { "type": "elasticsearch", "uid": "elasticsearch-anime" },
       "fieldConfig": {
         "defaults": {
-          "color": { "fixedColor": "#0ea5e9", "mode": "fixed" },
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "#0ea5e9", "value": null }] },
-          "decimals": 2,
-          "unit": "none"
-        }
-      },
-      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 17 },
-      "id": 9,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["mean"] },
-        "textMode": "auto"
-      },
-      "title": "Score bayésien moyen global",
-      "description": "Weighted score bayésien moyen — baseline de référence pour identifier les anomalies de notation",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "elasticsearch" },
-          "metrics": [{ "type": "avg", "id": "1", "field": "weighted_score" }],
-          "query": "weighted_score:>0",
-          "refId": "A",
-          "bucketAggs": [{ "type": "date_histogram", "id": "2", "field": "indexed_at", "settings": { "interval": "1d", "min_doc_count": "0" } }]
-        }
-      ]
-    },
-    {
-      "datasource": { "type": "elasticsearch", "uid": "elasticsearch-anime" },
-      "fieldConfig": {
-        "defaults": {
           "color": { "mode": "thresholds" },
-          "custom": { "align": "left", "cellOptions": { "type": "color-background" }, "inspect": false },
+          "custom": {
+            "align": "left",
+            "cellOptions": { "type": "auto" },
+            "inspect": false
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 0.3 },
-              { "color": "red", "value": 0.5 }
+              { "color": "#1e293b", "value": null },
+              { "color": "#92400e", "value": 0.3 },
+              { "color": "#7f1d1d", "value": 0.5 }
             ]
           }
         },
@@ -390,8 +380,9 @@
               { "id": "displayName", "value": "Drop ratio" },
               { "id": "unit", "value": "percentunit" },
               { "id": "decimals", "value": 2 },
-              { "id": "custom.cellOptions", "value": { "type": "color-background" } },
-              { "id": "custom.width", "value": 140 }
+              { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "gradient" } },
+              { "id": "custom.width", "value": 150 },
+              { "id": "thresholds", "value": { "mode": "absolute", "steps": [ { "color": "#166534", "value": null }, { "color": "#92400e", "value": 0.3 }, { "color": "#7f1d1d", "value": 0.5 } ] } }
             ]
           },
           {
@@ -399,7 +390,8 @@
             "properties": [
               { "id": "displayName", "value": "Score" },
               { "id": "decimals", "value": 2 },
-              { "id": "custom.width", "value": 90 }
+              { "id": "custom.width", "value": 90 },
+              { "id": "custom.cellOptions", "value": { "type": "auto" } }
             ]
           },
           {
@@ -407,24 +399,28 @@
             "properties": [
               { "id": "displayName", "value": "Membres" },
               { "id": "unit", "value": "short" },
-              { "id": "custom.width", "value": 110 }
+              { "id": "custom.width", "value": 110 },
+              { "id": "custom.cellOptions", "value": { "type": "auto" } }
             ]
           },
           {
             "matcher": { "id": "byName", "options": "Name.keyword" },
-            "properties": [{ "id": "displayName", "value": "Anime" }]
+            "properties": [
+              { "id": "displayName", "value": "Anime" },
+              { "id": "custom.cellOptions", "value": { "type": "auto" } }
+            ]
           }
         ]
       },
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 26 },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 29 },
       "id": 10,
       "options": {
         "footer": { "show": false },
         "showHeader": true,
         "sortBy": [{ "desc": true, "displayName": "Drop ratio" }]
       },
-      "title": "Top 50 animes suspects (drop ratio > 15%, audience > 1000)",
-      "description": "Animes avec un drop ratio supérieur à 15% et plus de 1000 membres — triés par taux d'abandon décroissant",
+      "title": "Vue exhaustive — Top 50 animes à surveiller",
+      "description": "drop_ratio > 15% et Members > 1000 — référentiel complet pour la soutenance",
       "type": "table",
       "targets": [
         {
