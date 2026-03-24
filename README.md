@@ -1,11 +1,11 @@
-# 🎌 AniData Lab — Observatoire Anime/Manga
+# AniData Lab — Observatoire Anime/Manga
 
 > Pipeline de données complet : Data Refinement → Elasticsearch + Grafana → Airflow
 > Semaine du 23 au 27 mars 2026
 
 ---
 
-## 📋 Prérequis
+## Prérequis
 
 - **Docker Desktop** installé et lancé ([docker.com/get-started](https://www.docker.com/get-started))
 - **VS Code** avec les extensions Python et Jupyter ([code.visualstudio.com](https://code.visualstudio.com/))
@@ -31,7 +31,7 @@ code --version          # VS Code
 
 ---
 
-## 🚀 Installation (5 minutes)
+## Installation (5 minutes)
 
 ### Étape 1 — Copier le projet
 
@@ -90,7 +90,7 @@ Les fichiers Python et notebooks (.ipynb) s'ouvrent directement dans VS Code.
 
 ---
 
-## 🏗️ Architecture du projet
+## Architecture du projet
 
 ```
 anidata-lab/
@@ -99,14 +99,14 @@ anidata-lab/
 ├── .env                            # Variables de configuration
 ├── start.sh / start.bat            # Scripts de démarrage
 │
-├── data/                           # 📦 Datasets CSV (à télécharger)
+├── data/                           # Datasets CSV (à télécharger)
 │   ├── LIRE_MOI.txt
 │   ├── anime.csv
 │   ├── rating_complete.csv
 │   └── anime_with_synopsis.csv
 │
 ├── airflow/
-│   ├── dags/                       # 🔄 Vos DAGs Airflow
+│   ├── dags/                       # Vos DAGs Airflow
 │   │   └── 00_hello_anidata.py
 │   ├── scripts/                    # Scripts Python utilitaires
 │   ├── plugins/
@@ -121,16 +121,16 @@ anidata-lab/
 │   ├── provisioning/
 │   │   ├── datasources/            # Elasticsearch auto-configuré
 │   │   └── dashboards/             # Chargement auto des dashboards
-│   └── dashboards/                 # 📊 Fichiers JSON des dashboards
+│   └── dashboards/                 # Fichiers JSON des dashboards
 │       └── anidata-overview.json   # Dashboard de démarrage
 │
-└── notebooks/                      # 📓 Vos notebooks (VS Code)
+└── notebooks/                      # Vos notebooks (VS Code)
     └── (créez vos .ipynb ici)
 ```
 
 ---
 
-## 🧮 Consommation mémoire (optimisée pour 8 Go)
+## Consommation mémoire (optimisée pour 8 Go)
 
 | Service            | RAM allouée | Rôle                              |
 |--------------------|-------------|-----------------------------------|
@@ -144,7 +144,7 @@ anidata-lab/
 
 ---
 
-## 📊 Utilisation au fil de la semaine
+## Utilisation au fil de la semaine
 
 ### Lundi / Mardi matin — Data Refinement (VS Code)
 
@@ -184,7 +184,53 @@ Créer vos DAGs dans `airflow/dags/` — ils apparaissent automatiquement.
 
 ---
 
-## ⚡ Commandes utiles
+## Pipeline ETL — Détail des étapes
+
+### DAG 01 — Extract
+
+Lecture parallèle des 3 fichiers CSV sources et validation de schéma (colonnes obligatoires, types).
+
+### DAG 02 — Transform
+
+Le nettoyage s'effectue en trois branches parallèles avant le merge :
+
+- `clean_anime` : remplacement des `"Unknown"` par NaN, conversion des types numériques, strip des titres, dédoublonnage sur `MAL_ID`
+- `clean_synopsis` : renommage de la colonne `sypnopsis`, suppression des synopsis génériques vides, dédoublonnage sur `MAL_ID`
+- `clean_ratings` : dédoublonnage sur `(user_id, anime_id)`, filtre des ratings hors de la plage `[1, 10]`
+
+Une fois les trois sources nettoyées, le merge est effectué sur `MAL_ID`, suivi du feature engineering (score bayésien pondéré, drop ratio, tier studio, durée en minutes) avec validation des bornes avant export.
+
+### DAG 03 — Load
+
+Indexation bulk du dataset gold dans Elasticsearch avec vérification du nombre de documents indexés.
+
+### DAG 04 — Anomaly Detector
+
+Détection des utilisateurs spam (volume de ratings), mono-raters (écart-type nul) et review bombing (ratio de notes à 1 supérieur à 10%). S'appuie sur `clean_ratings.parquet` produit par le DAG Transform.
+
+### DAG 05 — Full Pipeline
+
+Déclenche les DAGs 01 à 04 en séquence en un seul clic.
+
+---
+
+## Réinitialisation entre deux runs
+
+Avant de relancer le pipeline complet depuis un état propre, supprimer les fichiers intermédiaires générés dans `data/` :
+
+```bash
+cd data/
+rm -f raw_*.parquet clean_*.parquet merged.parquet featured.parquet \
+      anime_gold_v*.csv anime_gold_v*.json \
+      anime_gold_latest.csv anime_gold_latest.json \
+      anomalies_*.parquet anomalies_*.csv anomaly_report.txt
+```
+
+Les fichiers sources (`anime.csv`, `rating_complete.csv`, `anime_with_synopsis.csv`) ne doivent pas être supprimés.
+
+---
+
+## Commandes utiles
 
 ```bash
 # Démarrer tout
@@ -219,7 +265,7 @@ docker compose exec airflow-webserver bash
 
 ---
 
-## 🐛 Dépannage
+## Dépannage
 
 ### Elasticsearch ne démarre pas (Linux)
 
@@ -257,7 +303,7 @@ docker compose up -d
 
 ---
 
-## 📚 Ressources
+## Ressources
 
 - [Dataset Kaggle](https://www.kaggle.com/datasets/hernan4444/anime-recommendation-database-2020)
 - [Documentation Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html)

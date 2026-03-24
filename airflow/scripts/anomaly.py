@@ -1,5 +1,3 @@
-# AniData Lab — Détection d'anomalies sur les ratings
-
 import os
 import pandas as pd
 import numpy as np
@@ -9,15 +7,13 @@ REP_SOURCE = "/opt/airflow/data"
 
 
 def load_ratings():
-    path = os.path.join(REP_SOURCE, "raw_ratings.parquet")
-    if not os.path.exists(path):
-        path = os.path.join(REP_SOURCE, "rating_complete.csv")
-    if path.endswith(".parquet"):
-        return pd.read_parquet(path)
-    return pd.read_csv(path)
+    for filename in ["clean_ratings.parquet", "raw_ratings.parquet", "rating_complete.csv"]:
+        path = os.path.join(REP_SOURCE, filename)
+        if os.path.exists(path):
+            return pd.read_parquet(path) if path.endswith(".parquet") else pd.read_csv(path)
+    raise FileNotFoundError("Aucune source de ratings trouvée. Lancez le DAG Transform d'abord.")
 
 
-# Users avec un nombre déraisonnable de ratings (> seuil)
 def detect_spam_users(min_ratings=5000):
     df = load_ratings()
     user_counts = df.groupby("user_id").size()
@@ -38,7 +34,6 @@ def detect_spam_users(min_ratings=5000):
     return result
 
 
-# Users qui donnent toujours la même note (std = 0, min 10 ratings)
 def detect_mono_raters():
     df = load_ratings()
     user_stats = df.groupby("user_id")["rating"].agg(["std", "count"])
@@ -57,7 +52,6 @@ def detect_mono_raters():
     return result
 
 
-# Animes avec un ratio anormalement élevé de notes à 1 (review bombing)
 def detect_suspicious_ratings():
     gold_path = os.path.join(REP_SOURCE, "anime_gold_latest.csv")
     if not os.path.exists(gold_path):
@@ -76,7 +70,6 @@ def detect_suspicious_ratings():
         0
     )
 
-    # ratio > 10% de notes à 1 = suspect
     bombed = df[df["score1_ratio"] > 0.10][["MAL_ID", "Name", "Score", "score1_ratio", "total_votes"]]
     bombed = bombed.sort_values("score1_ratio", ascending=False)
 
@@ -89,7 +82,6 @@ def detect_suspicious_ratings():
     }
 
 
-# Compile un rapport des anomalies détectées
 def anomaly_report():
     report_lines = ["=" * 60, "RAPPORT D'ANOMALIES — AniData Lab", "=" * 60]
 

@@ -13,39 +13,49 @@ def get_es_client():
         raise ConnectionError(f"Elasticsearch injoignable à {ES_HOST}")
     return es
 
-# Supprime l'ancien index et en crée un nouveau avec le bon mapping
+
 def create_index_mapping():
     es = get_es_client()
 
     mapping = {
         "mappings": {
             "properties": {
-                "MAL_ID": {"type": "integer"},
-                "Name": {"type": "text", "fields": {"keyword": {"type": "keyword"}}},
-                "English name": {"type": "text", "fields": {"keyword": {"type": "keyword"}}},
-                "Japanese name": {"type": "text", "analyzer": "standard"},
-                "Score": {"type": "float"},
-                "Genres": {"type": "keyword"},
-                "Type": {"type": "keyword"},
-                "Episodes": {"type": "integer"},
-                "Studios": {"type": "keyword"},
-                "Source": {"type": "keyword"},
-                "Rating": {"type": "keyword"},
-                "Ranked": {"type": "float"},
-                "Popularity": {"type": "integer"},
-                "Members": {"type": "integer"},
-                "Favorites": {"type": "integer"},
-                "Watching": {"type": "integer"},
-                "Completed": {"type": "integer"},
-                "On-Hold": {"type": "integer"},
-                "Dropped": {"type": "integer"},
-                "Plan to Watch": {"type": "integer"},
-                "Synopsis": {"type": "text"},
-                "weighted_score": {"type": "float"},
-                "drop_ratio": {"type": "float"},
-                "studio_tier": {"type": "keyword"},
-                "duration_min": {"type": "float"},
-                "indexed_at": {"type": "date"},
+                "MAL_ID":           {"type": "integer"},
+                "Name":             {"type": "text", "fields": {"keyword": {"type": "keyword"}}},
+                "English name":     {"type": "text", "fields": {"keyword": {"type": "keyword"}}},
+                "Japanese name":    {"type": "text", "analyzer": "standard"},
+                "Score":            {"type": "float"},
+                "weighted_score":   {"type": "float"},
+                "score_category":   {"type": "keyword"},
+                "Genres":           {"type": "keyword"},
+                "main_genre":       {"type": "keyword"},
+                "Type":             {"type": "keyword"},
+                "Episodes":         {"type": "integer"},
+                "Studios":          {"type": "keyword"},
+                "main_studio":      {"type": "keyword"},
+                "studio_tier":      {"type": "keyword"},
+                "Source":           {"type": "keyword"},
+                "Rating":           {"type": "keyword"},
+                "Ranked":           {"type": "float"},
+                "Popularity":       {"type": "integer"},
+                "Members":          {"type": "integer"},
+                "Favorites":        {"type": "integer"},
+                "Watching":         {"type": "integer"},
+                "Completed":        {"type": "integer"},
+                "On-Hold":          {"type": "integer"},
+                "Dropped":          {"type": "integer"},
+                "Plan to Watch":    {"type": "integer"},
+                "Synopsis":         {"type": "text"},
+                "Aired":            {"type": "text"},
+                "Premiered":        {"type": "keyword"},
+                "Duration":         {"type": "keyword"},
+                "drop_ratio":       {"type": "float"},
+                "engagement_ratio": {"type": "float"},
+                "duration_min":     {"type": "float"},
+                "year":             {"type": "integer"},
+                "decade":           {"type": "integer"},
+                "is_outlier":       {"type": "boolean"},
+                "indexed_at":       {"type": "date"},
             }
         },
         "settings": {
@@ -62,12 +72,10 @@ def create_index_mapping():
     return {"index": INDEX_NAME, "status": "created"}
 
 
-# Transforme une ligne pandas en document ES
-# Les champs multi-valués (Genres, Studios) sont splittés en listes
 def prepare_doc(row, indexed_at):
     doc = {"indexed_at": indexed_at}
     for k, v in row.items():
-        if pd.isna(v):
+        if pd.isna(v) if not isinstance(v, (list, bool)) else False:
             continue
         if k in ("Genres", "Studios", "Producers", "Licensors"):
             doc[k] = [x.strip() for x in str(v).split(",")]
@@ -76,7 +84,6 @@ def prepare_doc(row, indexed_at):
     return doc
 
 
-# Lit le gold CSV et indexe tout dans ES par batch de 500
 def bulk_index():
     gold_path = os.path.join(REP_SOURCE, "anime_gold_latest.csv")
     if not os.path.exists(gold_path):
@@ -103,7 +110,6 @@ def bulk_index():
     }
 
 
-# Refresh l'index et vérifie le nombre de docs indexés
 def verify_index():
     es = get_es_client()
     es.indices.refresh(index=INDEX_NAME)

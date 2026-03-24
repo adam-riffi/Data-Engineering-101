@@ -1,6 +1,3 @@
-# AniData Lab — DAG Transform
-# Nettoyage, feature engineering, export gold avec versioning
-
 import sys
 sys.path.insert(0, '/opt/airflow/scripts')
 
@@ -9,7 +6,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator, BranchPythonOperator
 
 from transform import (
-    clean_anime, clean_synopsis, merge_datasets,
+    clean_anime, clean_synopsis, clean_ratings, merge_datasets,
     feature_engineering, check_gold_exists, export_gold,
 )
 
@@ -30,6 +27,11 @@ def _clean_anime(**context):
 def _clean_synopsis(**context):
     result = clean_synopsis()
     print(f"Synopsis nettoyé : {result['rows']} lignes")
+
+
+def _clean_ratings(**context):
+    result = clean_ratings()
+    print(f"Ratings nettoyés : {result['rows']} lignes")
 
 
 def _merge(**context):
@@ -78,6 +80,11 @@ with DAG(
         python_callable=_clean_synopsis,
     )
 
+    t_clean_ratings = PythonOperator(
+        task_id="clean_ratings",
+        python_callable=_clean_ratings,
+    )
+
     t_merge = PythonOperator(
         task_id="merge_datasets",
         python_callable=_merge,
@@ -103,6 +110,6 @@ with DAG(
         python_callable=_export_versioned,
     )
 
-    [t_clean_anime, t_clean_synopsis] >> t_merge >> t_features >> t_check
+    [t_clean_anime, t_clean_synopsis, t_clean_ratings] >> t_merge >> t_features >> t_check
     t_check >> t_export_first
     t_check >> t_export_versioned

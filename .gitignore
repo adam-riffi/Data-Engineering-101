@@ -1,6 +1,10 @@
 # Données (trop volumineuses pour Git)
 data/*.csv
 data/*.zip
+data/*.parquet
+data/*.json
+data/*.txt
+
 
 # Airflow
 airflow/logs/*
