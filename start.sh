@@ -86,6 +86,31 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     fi
 fi
 
+# --- Initialisation des volumes Docker nommés ---
+echo ""
+echo -e "${BOLD}📂 Initialisation des volumes Docker...${NC}"
+
+PROJECT=$(basename "$(pwd)")
+VOLUME_DATA="${PROJECT}_airflow_data"
+VOLUME_PIPELINE="${PROJECT}_logstash_pipeline"
+
+docker volume create "$VOLUME_DATA" > /dev/null
+docker volume create "$VOLUME_PIPELINE" > /dev/null
+
+# Copier data/ dans le volume airflow_data
+docker run --rm \
+    -v "$(pwd)/data":/source:ro \
+    -v "$VOLUME_DATA":/dest \
+    alpine sh -c "cp -r /source/. /dest/" 2>/dev/null
+echo -e "   ${GREEN}✅ Volume $VOLUME_DATA synchronisé${NC}"
+
+# Copier le pipeline Logstash dans le volume logstash_pipeline
+docker run --rm \
+    -v "$(pwd)/elk/logstash/pipeline":/source:ro \
+    -v "$VOLUME_PIPELINE":/dest \
+    alpine sh -c "cp -r /source/. /dest/" 2>/dev/null
+echo -e "   ${GREEN}✅ Volume $VOLUME_PIPELINE synchronisé${NC}"
+
 # --- Lancement ---
 echo ""
 echo -e "${BOLD}🐳 Lancement des services Docker...${NC}"
