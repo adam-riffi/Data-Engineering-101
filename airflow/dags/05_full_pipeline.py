@@ -40,6 +40,13 @@ with DAG(
         python_callable=_log_start,
     )
 
+    trigger_convert = TriggerDagRunOperator(
+        task_id="trigger_convert",
+        trigger_dag_id="00b_convert_to_csv",
+        wait_for_completion=True,
+        poke_interval=10,
+    )
+
     trigger_extract = TriggerDagRunOperator(
         task_id="trigger_extract",
         trigger_dag_id="01_extract_anime",
@@ -73,4 +80,4 @@ with DAG(
         python_callable=_log_end,
     )
 
-    start >> trigger_extract >> trigger_transform >> trigger_load >> trigger_anomaly >> end
+    start >> trigger_convert >> trigger_extract >> trigger_transform >> trigger_load >> trigger_anomaly >> end

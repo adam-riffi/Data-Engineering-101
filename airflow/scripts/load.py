@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 import pandas as pd
 from elasticsearch import Elasticsearch, helpers
 
-REP_SOURCE = "/opt/airflow/data"
+REP_EXPORTS = "/opt/airflow/data/exports"   # gold CSV produced by transform
 ES_HOST = "http://elasticsearch:9200"
 INDEX_NAME = "anime"
 
@@ -78,7 +78,7 @@ def prepare_doc(row, indexed_at):
 
 # Lit le gold CSV et indexe tout dans ES par batch de 500
 def bulk_index():
-    gold_path = os.path.join(REP_SOURCE, "anime_gold_latest.csv")
+    gold_path = os.path.join(REP_EXPORTS, "anime_gold_latest.csv")
     if not os.path.exists(gold_path):
         raise FileNotFoundError("anime_gold_latest.csv introuvable. Lancez le DAG Transform d'abord.")
 

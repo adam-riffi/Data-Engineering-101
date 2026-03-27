@@ -31,7 +31,7 @@ def check_data_files():
     """Vérifie que les fichiers CSV sont accessibles."""
     import os
 
-    data_dir = "/opt/airflow/data"
+    data_dir = "/opt/airflow/data/imports"
     expected_files = [
         "anime.csv",
         "rating_complete.csv",

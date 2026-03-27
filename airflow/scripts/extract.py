@@ -2,7 +2,8 @@ import os
 import pandas as pd
 
 
-REP_SOURCE = "/opt/airflow/data"
+REP_IMPORTS = "/opt/airflow/data/imports"   # source CSVs placed by user / convert
+REP_EXPORTS = "/opt/airflow/data/exports"   # intermediate parquets written by pipeline
 
 EXPECTED_SCHEMAS = {
     "anime": {
@@ -28,20 +29,21 @@ EXPECTED_SCHEMAS = {
 # Charge un CSV et sauvegarde en parquet pour passage inter-tasks
 def extract_csv(dataset_key):
     schema = EXPECTED_SCHEMAS[dataset_key]
-    filepath = os.path.join(REP_SOURCE, schema["file"])
+    filepath = os.path.join(REP_IMPORTS, schema["file"])
 
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Fichier introuvable : {filepath}")
 
     df = pd.read_csv(filepath)
 
-    output_path = os.path.join(REP_SOURCE, f"raw_{dataset_key}.parquet")
+    os.makedirs(REP_EXPORTS, exist_ok=True)
+    output_path = os.path.join(REP_EXPORTS, f"raw_{dataset_key}.parquet")
     df.to_parquet(output_path, index=False)
 
     return {
         "dataset": dataset_key,
-        "source_file": filepath,
-        "output_path": output_path,
+        "source_file": str(filepath),
+        "output_path": str(output_path),
         "rows": len(df),
         "columns": list(df.columns),
     }

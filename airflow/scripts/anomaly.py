@@ -5,13 +5,14 @@ import pandas as pd
 import numpy as np
 
 
-REP_SOURCE = "/opt/airflow/data"
+REP_IMPORTS = "/opt/airflow/data/imports"   # CSV fallback
+REP_EXPORTS = "/opt/airflow/data/exports"   # parquets, gold, anomaly outputs
 
 
 def load_ratings():
-    path = os.path.join(REP_SOURCE, "raw_ratings.parquet")
+    path = os.path.join(REP_EXPORTS, "raw_ratings.parquet")
     if not os.path.exists(path):
-        path = os.path.join(REP_SOURCE, "rating_complete.csv")
+        path = os.path.join(REP_IMPORTS, "rating_complete.csv")
     if path.endswith(".parquet"):
         return pd.read_parquet(path)
     return pd.read_csv(path)
@@ -33,7 +34,7 @@ def detect_spam_users(min_ratings=5000):
 
     flagged = df[df["user_id"].isin(spam_users.index)].copy()
     flagged["anomaly_type"] = "spam_volume"
-    flagged.to_parquet(os.path.join(REP_SOURCE, "anomalies_spam.parquet"), index=False)
+    flagged.to_parquet(os.path.join(REP_EXPORTS, "anomalies_spam.parquet"), index=False)
 
     return result
 
@@ -52,14 +53,14 @@ def detect_mono_raters():
 
     flagged = df[df["user_id"].isin(mono.index)].copy()
     flagged["anomaly_type"] = "mono_rater"
-    flagged.to_parquet(os.path.join(REP_SOURCE, "anomalies_mono.parquet"), index=False)
+    flagged.to_parquet(os.path.join(REP_EXPORTS, "anomalies_mono.parquet"), index=False)
 
     return result
 
 
 # Animes avec un ratio anormalement élevé de notes à 1 (review bombing)
 def detect_suspicious_ratings():
-    gold_path = os.path.join(REP_SOURCE, "anime_gold_latest.csv")
+    gold_path = os.path.join(REP_EXPORTS, "anime_gold_latest.csv")
     if not os.path.exists(gold_path):
         return {"status": "skipped", "reason": "gold dataset not found"}
 
@@ -80,7 +81,7 @@ def detect_suspicious_ratings():
     bombed = df[df["score1_ratio"] > 0.10][["MAL_ID", "Name", "Score", "score1_ratio", "total_votes"]]
     bombed = bombed.sort_values("score1_ratio", ascending=False)
 
-    bombed.to_csv(os.path.join(REP_SOURCE, "anomalies_review_bombing.csv"), index=False)
+    bombed.to_csv(os.path.join(REP_EXPORTS, "anomalies_review_bombing.csv"), index=False)
 
     return {
         "total_checked": int(len(df)),
@@ -98,7 +99,7 @@ def anomaly_report():
         ("Mono-raters", "anomalies_mono.parquet"),
         ("Review bombing", "anomalies_review_bombing.csv"),
     ]:
-        full = os.path.join(REP_SOURCE, path)
+        full = os.path.join(REP_EXPORTS, path)
         if os.path.exists(full):
             if path.endswith(".parquet"):
                 count = len(pd.read_parquet(full))
@@ -109,7 +110,7 @@ def anomaly_report():
             report_lines.append(f"{name}: non exécuté")
 
     report = "\n".join(report_lines)
-    report_path = os.path.join(REP_SOURCE, "anomaly_report.txt")
+    report_path = os.path.join(REP_EXPORTS, "anomaly_report.txt")
     with open(report_path, "w") as f:
         f.write(report)
 
